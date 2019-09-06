@@ -1,0 +1,54 @@
+{
+  "name": "react_todos",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel src/ -d lib/",
+    "start": "webpack-dev-server",
+    "lint": "eslint ./ --fix",
+    "flow": "flow"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VolkovnytskyiKostiantyn/react_todos.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VolkovnytskyiKostiantyn/react_todos/issues"
+  },
+  "homepage": "https://github.com/VolkovnytskyiKostiantyn/react_todos#readme",
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/loader": "^8.0.6",
+    "@babel/plugin-transform-runtime": "^7.0.0-beta.3",
+    "@babel/polyfill": "^7.4.4",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/preset-react": "^7.0.0",
+    "babel-eslint": "^10.0.3",
+    "babel-loader": "^8.0.6",
+    "css-loader": "^3.2.0",
+    "eslint": "^6.3.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-react": "^7.14.3",
+    "html-webpack-plugin": "^3.2.0",
+    "nodemon": "^1.19.1",
+    "style-loader": "^1.0.0",
+    "webpack": "^4.39.3",
+    "webpack-cli": "^3.3.7",
+    "webpack-dev-server": "^3.8.0"
+  },
+  "dependencies": {
+    "browser-history": "^1.0.1",
+    "history": "^4.9.0",
+    "prop-types": "^15.7.2",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-router": "^5.0.1",
+    "react-router-dom": "^5.0.1"
+  }
+}
