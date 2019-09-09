@@ -3,8 +3,12 @@
         "browser": true,
         "es6": true
     },
+    "plugins": [
+        "flowtype"
+    ],
     "extends": [
-        "airbnb"
+        "airbnb",
+        "plugin:flowtype/recommended"
     ],
     "globals": {
         "Atomics": "readonly",
@@ -22,6 +26,9 @@
         "react/state-in-constructor": [
             1,
             "never"
+        ],
+        "no-console": [
+            "error"
         ]
     },
     "parser": "babel-eslint"

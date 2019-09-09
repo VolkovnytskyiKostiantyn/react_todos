@@ -1,6 +1,5 @@
 // @flow
-import React from 'react'
-// import PropTypes from 'prop-types'
+import React, { SyntheticKeyboardEvent } from 'react'
 
 import LogoutPanel from './LogoutPanel'
 import TodoList from './TodoList'
@@ -31,6 +30,7 @@ type Props = {
     isCompleted: boolean | string,
   }>,
   currentUser: string,
+  choosenUser: string,
   currentViewMode: "All" | "Active" | "Completed",
   sharedUsers: Array<string>,
   sharedUsersInputValue: string,
@@ -62,6 +62,7 @@ export default function TodosPage(props: Props) {
     todos,
     todosToRender,
     currentUser,
+    choosenUser,
     currentViewMode,
     sharedUsers,
     sharedUsersInputValue,
@@ -75,10 +76,11 @@ export default function TodosPage(props: Props) {
     updatingTodoInputValue,
     timeoutId,
     handleClicks,
+    returnToTodosSelection
   } = props
   return (
     <>
-      <LogoutPanel currentUser={currentUser} logout={logout} />
+      <LogoutPanel currentUser={currentUser} logout={logout} returnToTodosSelection={returnToTodosSelection} />
       <TodoList
         addTodo={addTodo}
         currentUpdatingTodo={currentUpdatingTodo}
@@ -94,6 +96,7 @@ export default function TodosPage(props: Props) {
         todos={todos}
         todosToRender={todosToRender}
         currentUser={currentUser}
+        choosenUser={choosenUser}
         currentViewMode={currentViewMode}
         cancelUpdatingTodo={cancelUpdatingTodo}
         beginUpdatingTodo={beginUpdatingTodo}

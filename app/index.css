@@ -166,5 +166,41 @@ body {
   }
 
   .owner {
-    cursor: default
+    cursor: default;
+  }
+
+  .choose-todos-panel{
+    display: flex;
+    justify-content: center;
+    width: 450px;
+    height: auto;
+    margin: 0 auto;
+    /* border: 1px solid gray;
+    border-radius: 15px; */
+    align-items: center;
+  }
+
+  .user-to-choose {
+    border: 1px solid gray;
+    border-radius: 10px;
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    margin: 10px, 20px, 10px, 0;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .hidden {
+    visibility: hidden;
+  }
+
+  .back-to-selection-panel {
+        width: 75px;
+    border: 1px solid gray;
+    border-radius: 10px;
+    padding: 5px;
+    position: absolute;
+    right: 0;
+    top: 0;
   }

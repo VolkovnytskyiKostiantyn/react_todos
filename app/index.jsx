@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // @flow
 /* eslint-disable react/state-in-constructor */
 import * as React from 'react'
@@ -19,8 +20,10 @@ type State = {
     isCompleted: boolean | string,
   }>,
   sharedUsers: Array<string>,
+  externalUsers: Array<string>,
   isAuthenticated: boolean,
-  currentUser: string,
+  currentUser: null,
+  choosenUser: string,
   currentViewMode: "All" | "Active" | "Completed",
   nextId: number,
   todosInputValue: string,
@@ -43,8 +46,10 @@ class App extends React.Component<Props, State> {
     this.state = {
       todos: [],
       sharedUsers: [],
+      externalUsers: [],
       isAuthenticated: !!localStorage.getItem('token'),
-      currentUser: '',
+      currentUser: null,
+      choosenUser: null,
       currentViewMode: 'All',
       nextId: 1,
       loginFieldValue: '',
@@ -59,29 +64,31 @@ class App extends React.Component<Props, State> {
     this.history = createBrowserHistory()
   }
 
-  componentDidMount():void {
-    this.fetchData()
+  componentDidMount(): void {
+    this.fetchUsersData(localStorage.getItem('login'))
   }
 
-  setViewModeAll = ():void => {
+  setViewModeAll = (): void => {
     this.setState(() => ({
       currentViewMode: 'All',
     }))
   }
 
-  setViewModeActive = ():void => {
+  setViewModeActive = (): void => {
     this.setState(() => ({
       currentViewMode: 'Active',
     }))
   }
 
-  setViewModeCompleted = ():void => {
+  setViewModeCompleted = (): void => {
     this.setState(() => ({
       currentViewMode: 'Completed',
     }))
   }
 
-  login = (event: SyntheticKeyboardEvent<HTMLInputElement> | SyntheticMouseEvent<HTMLButtonElement>):void => {
+  login = (
+    event: SyntheticKeyboardEvent<HTMLInputElement> | SyntheticMouseEvent<HTMLButtonElement>,
+  ): void => {
     if (event.key === 'Enter' || event.currentTarget.classList.contains('login-button')) {
       const { loginFieldValue, passwordFieldValue } = this.state
       callApi('POST', { login: loginFieldValue, password: passwordFieldValue }, '/signUp')
@@ -95,18 +102,45 @@ class App extends React.Component<Props, State> {
             if (this.history && this.history.replace) {
               this.history.replace('/')
             }
-            this.fetchData()
+            localStorage.setItem('login', `${loginFieldValue}`)
+            this.fetchUsersData(loginFieldValue)
           } else {
             throw new Error('Invalid token')
           }
         })
-        .catch((err) => console.log(err))
+        .catch((err) => {
+          // eslint-disable-next-line no-console
+          console.error(err)
+        })
     }
   }
 
-  fetchData = ():void => {
+  fetchUsersData = (username): void => {
+    console.log('fetching users data')
     let isResponseOk = false
-    callApi('GET')
+    callApi('GET', null, `/users/${username}`)
+      .then((response) => {
+        isResponseOk = response.ok
+        return response.json()
+      })
+      .then((result) => {
+        console.log('result: ', result)
+        if (isResponseOk) {
+          console.log('isResponseOk: ', isResponseOk)
+          this.setState(() => ({
+            currentUser: result.login,
+            sharedUsers: result.sharedUsers,
+            externalUsers: result.externalUsers,
+          }))
+        }
+      })
+  }
+
+  fetchData = (username): void => {
+    let isResponseOk = false
+    console.log(username)
+    const path = username === 'All' ? '/' : `/todos/${username}`
+    callApi('GET', null, path)
       .then((response) => {
         isResponseOk = response.ok
         return response.json()
@@ -118,8 +152,8 @@ class App extends React.Component<Props, State> {
           this.setState(() => ({
             sharedUsers: result.sharedUsers,
             todos: result.todos,
-            currentUser: result.currentUser,
             isAuthenticated: true,
+            externalUsers: result.externalUsers,
           }))
           console.log('state', this.state)
           localStorage.setItem('token', `Bearer ${result.token}`)
@@ -127,13 +161,13 @@ class App extends React.Component<Props, State> {
           localStorage.removeItem('token')
         }
       })
-      .catch((e) => {
-        console.log(e)
+      .catch((err) => {
+        console.error(err)
       })
   }
 
-  addTodo = (event: SyntheticKeyboardEvent<HTMLButtonElement>) :void => {
-    const { todosInputValue, currentUser } = this.state
+  addTodo = (event: SyntheticKeyboardEvent<HTMLButtonElement>): void => {
+    const { todosInputValue, currentUser, choosenUser } = this.state
     let isResponseOk = false
     if (event.key === 'Enter') {
       callApi('POST', { title: todosInputValue, owner: currentUser })
@@ -143,10 +177,10 @@ class App extends React.Component<Props, State> {
         })
         .then(() => {
           if (isResponseOk) {
-            this.fetchData()
+            this.fetchData(choosenUser)
           }
         })
-        .catch((e) => console.log(e))
+        .catch((err) => console.error(err))
       this.setState((prevState) => ({
         nextId: prevState.nextId + 1,
         todosInputValue: '',
@@ -163,14 +197,14 @@ class App extends React.Component<Props, State> {
     }
   }
 
-  beginUpdatingTodo = (id: string, todoTitle: string) :void => {
+  beginUpdatingTodo = (id: string, todoTitle: string): void => {
     this.setState(() => ({
       currentUpdatingTodo: id,
       updatingTodoInputValue: todoTitle,
     }))
   }
 
-  confirmUpdatingTodo = (idToUpdate: string, newTitle: string) :void => {
+  confirmUpdatingTodo = (idToUpdate: string, newTitle: string): void => {
     this.setState((prevState) => ({
       todos: prevState.todos.map((todo) => {
         if (todo._id === idToUpdate) {
@@ -179,7 +213,7 @@ class App extends React.Component<Props, State> {
 
           callApi('PUT', { _id: idToUpdate, updKeyValue: { title: newTitle } })
             .then((response) => response.json())
-            .catch((err) => console.log(err))
+            .catch((err) => console.error(err))
 
           return newTodo
         }
@@ -189,22 +223,19 @@ class App extends React.Component<Props, State> {
     }))
   }
 
-  cancelUpdatingTodo = ():void => {
+  cancelUpdatingTodo = (): void => {
     this.setState(() => ({
       currentUpdatingTodo: null,
     }))
   }
 
-  handleClicks = (id: string, todoTitle: string) :void => {
+  handleClicks = (id: string, todoTitle: string): void => {
     if (this.timeoutId !== null) {
-      console.log('double click executes')
       this.beginUpdatingTodo(id, todoTitle)
       clearTimeout(this.timeoutId)
       this.timeoutId = null
     } else {
-      console.log('single click')
       this.timeoutId = setTimeout(() => {
-        console.log('first click executes ')
         this.toggleReadyState(id)
         clearTimeout(this.timeoutId)
         this.timeoutId = null
@@ -212,7 +243,15 @@ class App extends React.Component<Props, State> {
     }
   }
 
-  toggleReadyState = (idToUpdate: string) :void => {
+  setChoosenUser = (username): void => {
+    this.setState(() => ({
+      choosenUser: username,
+    }))
+    this.fetchData(username)
+    console.log('choosenUser in set', this.state.choosenUser)
+  }
+
+  toggleReadyState = (idToUpdate: string): void => {
     this.setState((prevState) => ({
       todos: prevState.todos.map((todo) => {
         if (todo._id === idToUpdate) {
@@ -221,7 +260,7 @@ class App extends React.Component<Props, State> {
 
           callApi('PUT', { _id: idToUpdate, updKeyValue: { isCompleted: newTodo.isCompleted } })
             .then((response) => response.json())
-            .catch((err) => console.log(err))
+            .catch((err) => console.error(err))
 
           return newTodo
         }
@@ -230,39 +269,46 @@ class App extends React.Component<Props, State> {
     }))
   }
 
-  logout = () :void => {
-    console.log('logged out')
+  logout = (): void => {
     localStorage.removeItem('token')
     this.setState(() => ({
       isAuthenticated: false,
+      choosenUser: '',
+    }))
+  }
+
+  returnToTodosSelection = (): void => {
+    this.setState(() => ({
+      choosenUser: null,
     }))
   }
 
 
-  removeTodo = (idToDelete: string) :void => {
+  removeTodo = (idToDelete: string): void => {
     this.setState((prevState) => ({
       todos: prevState.todos.filter((todo) => todo._id !== idToDelete),
     }))
     callApi('DELETE', { _id: `${idToDelete}` })
       .then((response) => response.json())
-      .catch((err) => console.log(err))
+      .catch((err) => console.error(err))
   }
 
-  clearCompleted = () :void => {
+  clearCompleted = (): void => {
+    const { todos, choosenUser } = this.state
     this.setState((prevState) => ({
       todos: prevState.todos.filter((todo) => !todo.isCompleted),
     }))
-    const todosToRemove = this.state.todos.filter((todo) => todo.isCompleted).map((todo) => todo._id)
+    const todosToRemove = todos.filter((todo) => todo.isCompleted).map((todo) => todo._id)
     callApi('DELETE', { idArr: todosToRemove }, '/delete_many')
       .then((response) => {
         if (response.ok) {
-          this.fetchData()
+          this.fetchData(choosenUser)
         }
       })
-      .catch((e) => console.log(e))
+      .catch((err) => console.error(err))
   }
 
-  updateLoginFieldValue = (event: SyntheticKeyboardEvent<HTMLInputElement>) :void => {
+  updateLoginFieldValue = (event: SyntheticKeyboardEvent<HTMLInputElement>): void => {
     // (event.currentTarget: HTMLInputElement)
     const etv = event.currentTarget.value
     this.setState((prevState) => ({
@@ -270,7 +316,7 @@ class App extends React.Component<Props, State> {
     }))
   }
 
-  updatePasswordFieldValue = (event: SyntheticKeyboardEvent<HTMLInputElement>) :void => {
+  updatePasswordFieldValue = (event: SyntheticKeyboardEvent<HTMLInputElement>): void => {
     const etv = event.currentTarget.value
     this.setState((prevState) => ({
       passwordFieldValue: `${etv}`,
@@ -278,28 +324,28 @@ class App extends React.Component<Props, State> {
   }
 
 
-  updateInputFieldValue = (event: SyntheticKeyboardEvent<HTMLInputElement>) :void => {
+  updateInputFieldValue = (event: SyntheticKeyboardEvent<HTMLInputElement>): void => {
     const etv = event.currentTarget.value
     this.setState((prevState) => ({
       todosInputValue: `${etv}`,
     }))
   }
 
-  updateTodoInputFieldValue = (event: SyntheticKeyboardEvent<HTMLInputElement>) :void => {
+  updateTodoInputFieldValue = (event: SyntheticKeyboardEvent<HTMLInputElement>): void => {
     const etv = event.currentTarget.value
     this.setState((prevState) => ({
       updatingTodoInputValue: `${etv}`,
     }))
   }
 
-  updateSharedUsersFieldValue = (event: SyntheticKeyboardEvent<HTMLInputElement>) :void => {
+  updateSharedUsersFieldValue = (event: SyntheticKeyboardEvent<HTMLInputElement>): void => {
     const etv = event.currentTarget.value
     this.setState(() => ({
       sharedUsersInputValue: `${etv}`,
     }))
   }
 
-  addSharedUser = (event: SyntheticKeyboardEvent<HTMLInputElement>) :void => {
+  addSharedUser = (event: SyntheticKeyboardEvent<HTMLInputElement>): void => {
     const etv = event.currentTarget.value
     if (event.key === 'Enter') {
       this.setState((prevState) => ({
@@ -316,6 +362,7 @@ class App extends React.Component<Props, State> {
       nextId,
       todosInputValue,
       sharedUsers,
+      externalUsers,
       currentUser,
       currentViewMode,
       sharedUsersInputValue,
@@ -324,9 +371,9 @@ class App extends React.Component<Props, State> {
       updatingTodoInputValue,
       loginFieldValue,
       passwordFieldValue,
+      choosenUser,
     } = this.state
 
-    console.log('render called')
     let todosToRender = [...todos]
     if (currentViewMode === 'Completed') {
       todosToRender = todos.filter((todo) => todo.isCompleted)
@@ -367,6 +414,7 @@ class App extends React.Component<Props, State> {
             currentUser={currentUser}
             currentViewMode={currentViewMode}
             sharedUsers={sharedUsers}
+            externalUsers={externalUsers}
             sharedUsersInputValue={sharedUsersInputValue}
             updateSharedUsersFieldValue={this.updateSharedUsersFieldValue}
             addSharedUser={this.addSharedUser}
@@ -378,6 +426,9 @@ class App extends React.Component<Props, State> {
             updatingTodoInputValue={updatingTodoInputValue}
             timeoutId={this.timeoutId}
             handleClicks={this.handleClicks}
+            choosenUser={choosenUser}
+            setChoosenUser={this.setChoosenUser}
+            returnToTodosSelection={this.returnToTodosSelection}
           />
         </Switch>
       </Router>

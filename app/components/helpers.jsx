@@ -1,16 +1,15 @@
 // @flow
 import React from 'react'
 import { Route, Redirect } from 'react-router-dom'
-// import PropTypes from 'prop-types'
 
-import TodosPage from './TodosPage'
+import ChooseTodosPanel from './ChooseTodosPanel'
 
 
-export default async function callApi(type: string, customBody: ?{} = {}, additionalPath: string = '/') :Object {
+export default async function callApi(type: string, customBody: ?{} = {}, additionalPath: string = '/'): Object {
   let response
   const token = localStorage.getItem('token')
   if (type === 'GET' || type === 'HEAD') {
-    response = await fetch(`http://localhost:9999${additionalPath}`, {
+    response = await fetch(`http://localhost:3010${additionalPath}`, {
       method: type,
       headers: {
         'Content-Type': 'application/json;charset=utf-8',
@@ -18,7 +17,7 @@ export default async function callApi(type: string, customBody: ?{} = {}, additi
       },
     })
   } else {
-    response = await fetch(`http://localhost:9999${additionalPath}`, {
+    response = await fetch(`http://localhost:3010${additionalPath}`, {
       method: type,
       headers: {
         'Content-Type': 'application/json;charset=utf-8',
@@ -48,6 +47,7 @@ export const PrivateRoute = ({
   currentUser,
   currentViewMode,
   sharedUsers,
+  externalUsers,
   sharedUsersInputValue,
   updateSharedUsersFieldValue,
   addSharedUser,
@@ -59,12 +59,15 @@ export const PrivateRoute = ({
   updatingTodoInputValue,
   timeoutId,
   handleClicks,
-} :Object) => (
+  choosenUser,
+  setChoosenUser,
+  returnToTodosSelection,
+}: Object) => (
   <Route
     render={() => (
       isAuthenticated
         ? (
-          <TodosPage
+          <ChooseTodosPanel
             addTodo={addTodo}
             currentUpdatingTodo={currentUpdatingTodo}
             updateInputFieldValue={updateInputFieldValue}
@@ -81,6 +84,7 @@ export const PrivateRoute = ({
             currentUser={currentUser}
             currentViewMode={currentViewMode}
             sharedUsers={sharedUsers}
+            externalUsers={externalUsers}
             sharedUsersInputValue={sharedUsersInputValue}
             updateSharedUsersFieldValue={updateSharedUsersFieldValue}
             addSharedUser={addSharedUser}
@@ -93,6 +97,9 @@ export const PrivateRoute = ({
             updatingTodoInputValue={updatingTodoInputValue}
             timeoutId={timeoutId}
             handleClicks={handleClicks}
+            choosenUser={choosenUser}
+            setChoosenUser={setChoosenUser}
+            returnToTodosSelection={returnToTodosSelection}
           />
         )
         : <Redirect to="/login" />

@@ -1,6 +1,5 @@
 // @flow
-import React from 'react'
-// import PropTypes from 'prop-types'
+import React, { SyntheticKeyboardEvent } from 'react'
 import TodoItem from './TodoItem'
 import BottomPanel from './BottomPanel'
 
@@ -28,6 +27,7 @@ type Props = {
     isCompleted: boolean | string,
   }>,
   currentUser: string,
+  choosenUser: string,
   currentViewMode: "All" | "Active" | "Completed",
   cancelUpdatingTodo: () => void,
   beginUpdatingTodo: () => void,
@@ -44,6 +44,7 @@ export default function TodoList(props: Props) {
     currentUpdatingTodo,
     todosToRender,
     currentUser,
+    choosenUser,
     currentViewMode,
     addTodo,
     todosInputValue,
@@ -62,9 +63,11 @@ export default function TodoList(props: Props) {
     timeoutId,
     handleClicks,
   } = props
+  console.log('choosenUser', choosenUser)
+  console.log('currentUser', currentUser)
   return (
     <section className="main-container">
-      <input className="todo-input" type="text" onKeyDown={addTodo} onChange={updateInputFieldValue} value={todosInputValue} />
+      <input className={[currentUser, 'All'].includes(choosenUser) ? 'todo-input' : 'todo-input hidden'} type="text" onKeyDown={addTodo} onChange={updateInputFieldValue} value={todosInputValue} />
       <div className="todos-container">
         <ul className="todo-list">
           {

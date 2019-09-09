@@ -1,6 +1,5 @@
 // @flow
-import React from 'react'
-// import PropTypes from 'prop-types'
+import React, { SyntheticKeyboardEvent } from 'react'
 
 type Props = {
   login: (event: SyntheticKeyboardEvent<HTMLInputElement> | SyntheticMouseEvent<HTMLButtonElement>) => void,

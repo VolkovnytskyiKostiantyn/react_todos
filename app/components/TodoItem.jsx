@@ -1,5 +1,5 @@
 // @flow
-import React from 'react'
+import React, { SyntheticKeyboardEvent } from 'react'
 // import PropTypes from 'prop-types'
 
 type Props = {
