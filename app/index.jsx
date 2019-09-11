@@ -9,6 +9,26 @@ import './index.css'
 
 import callApi, { PrivateRoute } from './components/helpers'
 import LoginPanel from './components/LoginPanel'
+import { createStore, reducer } from './redux/utils'
+
+const initialState = {
+  todos: [],
+  sharedUsers: [],
+  externalUsers: [],
+  isAuthenticated: false,
+  currentUser: null,
+  choosenUser: null,
+  currentViewMode: 'All',
+  nextId: 1,
+  todosInputValue: '',
+  sharedUsersInputValue: '',
+  updatingTodoInputValue: '',
+  currentUpdatingTodo: null,
+  loginFieldValue: '',
+  passwordFieldValue: '',
+}
+const Context = React.createContext()
+const store = createStore(reducer, initialState)
 
 type Props = {}
 
@@ -89,8 +109,8 @@ class App extends React.Component<Props, State> {
   login = (
     event: SyntheticKeyboardEvent<HTMLInputElement> | SyntheticMouseEvent<HTMLButtonElement>,
   ): void => {
-    if (event.key === 'Enter' || event.currentTarget.classList.contains('login-button')) {
-      const { loginFieldValue, passwordFieldValue } = this.state
+    const { loginFieldValue, passwordFieldValue } = this.state
+    if ((event.key === 'Enter' || event.currentTarget.classList.contains('login-button')) && loginFieldValue.trim() !== '') {
       callApi('POST', { login: loginFieldValue, password: passwordFieldValue }, '/signUp')
         .then((response) => response.text())
         .then((result) => {
@@ -116,7 +136,6 @@ class App extends React.Component<Props, State> {
   }
 
   fetchUsersData = (username): void => {
-    console.log('fetching users data')
     let isResponseOk = false
     callApi('GET', null, `/users/${username}`)
       .then((response) => {
@@ -124,9 +143,7 @@ class App extends React.Component<Props, State> {
         return response.json()
       })
       .then((result) => {
-        console.log('result: ', result)
         if (isResponseOk) {
-          console.log('isResponseOk: ', isResponseOk)
           this.setState(() => ({
             currentUser: result.login,
             sharedUsers: result.sharedUsers,
@@ -138,7 +155,6 @@ class App extends React.Component<Props, State> {
 
   fetchData = (username): void => {
     let isResponseOk = false
-    console.log(username)
     const path = username === 'All' ? '/' : `/todos/${username}`
     callApi('GET', null, path)
       .then((response) => {
@@ -146,8 +162,6 @@ class App extends React.Component<Props, State> {
         return response.json()
       })
       .then((result) => {
-        console.log('fetch result: ')
-        console.log(result)
         if (isResponseOk) {
           this.setState(() => ({
             sharedUsers: result.sharedUsers,
@@ -155,7 +169,6 @@ class App extends React.Component<Props, State> {
             isAuthenticated: true,
             externalUsers: result.externalUsers,
           }))
-          console.log('state', this.state)
           localStorage.setItem('token', `Bearer ${result.token}`)
         } else {
           localStorage.removeItem('token')
@@ -169,7 +182,7 @@ class App extends React.Component<Props, State> {
   addTodo = (event: SyntheticKeyboardEvent<HTMLButtonElement>): void => {
     const { todosInputValue, currentUser, choosenUser } = this.state
     let isResponseOk = false
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' && todosInputValue.trim() !== '') {
       callApi('POST', { title: todosInputValue, owner: currentUser })
         .then((response) => {
           isResponseOk = response.ok
@@ -248,7 +261,6 @@ class App extends React.Component<Props, State> {
       choosenUser: username,
     }))
     this.fetchData(username)
-    console.log('choosenUser in set', this.state.choosenUser)
   }
 
   toggleReadyState = (idToUpdate: string): void => {
@@ -381,57 +393,59 @@ class App extends React.Component<Props, State> {
       todosToRender = todos.filter((todo) => !todo.isCompleted)
     }
     return (
-      <Router history={this.history}>
-        <Switch>
-          <Route
-            exact
-            path="/login"
-            render={() => (
-              <LoginPanel
-                login={this.login}
-                loginFieldValue={loginFieldValue}
-                passwordFieldValue={passwordFieldValue}
-                updateLoginFieldValue={this.updateLoginFieldValue}
-                updatePasswordFieldValue={this.updatePasswordFieldValue}
-              />
-            )}
-          />
-          <PrivateRoute
-            isAuthenticated={isAuthenticated}
-            currentUpdatingTodo={currentUpdatingTodo}
-            addTodo={this.addTodo}
-            updateInputFieldValue={this.updateInputFieldValue}
-            setViewModeAll={this.setViewModeAll}
-            setViewModeActive={this.setViewModeActive}
-            setViewModeCompleted={this.setViewModeCompleted}
-            toggleReadyState={this.toggleReadyState}
-            removeTodo={this.removeTodo}
-            clearCompleted={this.clearCompleted}
-            todosInputValue={todosInputValue}
-            nextId={nextId}
-            todos={todos}
-            todosToRender={todosToRender}
-            currentUser={currentUser}
-            currentViewMode={currentViewMode}
-            sharedUsers={sharedUsers}
-            externalUsers={externalUsers}
-            sharedUsersInputValue={sharedUsersInputValue}
-            updateSharedUsersFieldValue={this.updateSharedUsersFieldValue}
-            addSharedUser={this.addSharedUser}
-            logout={this.logout}
-            cancelUpdatingTodo={this.cancelUpdatingTodo}
-            beginUpdatingTodo={this.beginUpdatingTodo}
-            confirmUpdatingTodo={this.confirmUpdatingTodo}
-            updateTodoInputFieldValue={this.updateTodoInputFieldValue}
-            updatingTodoInputValue={updatingTodoInputValue}
-            timeoutId={this.timeoutId}
-            handleClicks={this.handleClicks}
-            choosenUser={choosenUser}
-            setChoosenUser={this.setChoosenUser}
-            returnToTodosSelection={this.returnToTodosSelection}
-          />
-        </Switch>
-      </Router>
+      <Context.Provider value={store}>
+        <Router history={this.history}>
+          <Switch>
+            <Route
+              exact
+              path="/login"
+              render={() => (
+                <LoginPanel
+                  login={this.login}
+                  loginFieldValue={loginFieldValue}
+                  passwordFieldValue={passwordFieldValue}
+                  updateLoginFieldValue={this.updateLoginFieldValue}
+                  updatePasswordFieldValue={this.updatePasswordFieldValue}
+                />
+              )}
+            />
+            <PrivateRoute
+              isAuthenticated={isAuthenticated}
+              currentUpdatingTodo={currentUpdatingTodo}
+              addTodo={this.addTodo}
+              updateInputFieldValue={this.updateInputFieldValue}
+              setViewModeAll={this.setViewModeAll}
+              setViewModeActive={this.setViewModeActive}
+              setViewModeCompleted={this.setViewModeCompleted}
+              toggleReadyState={this.toggleReadyState}
+              removeTodo={this.removeTodo}
+              clearCompleted={this.clearCompleted}
+              todosInputValue={todosInputValue}
+              nextId={nextId}
+              todos={todos}
+              todosToRender={todosToRender}
+              currentUser={currentUser}
+              currentViewMode={currentViewMode}
+              sharedUsers={sharedUsers}
+              externalUsers={externalUsers}
+              sharedUsersInputValue={sharedUsersInputValue}
+              updateSharedUsersFieldValue={this.updateSharedUsersFieldValue}
+              addSharedUser={this.addSharedUser}
+              logout={this.logout}
+              cancelUpdatingTodo={this.cancelUpdatingTodo}
+              beginUpdatingTodo={this.beginUpdatingTodo}
+              confirmUpdatingTodo={this.confirmUpdatingTodo}
+              updateTodoInputFieldValue={this.updateTodoInputFieldValue}
+              updatingTodoInputValue={updatingTodoInputValue}
+              timeoutId={this.timeoutId}
+              handleClicks={this.handleClicks}
+              choosenUser={choosenUser}
+              setChoosenUser={this.setChoosenUser}
+              returnToTodosSelection={this.returnToTodosSelection}
+            />
+          </Switch>
+        </Router>
+      </Context.Provider>
     )
   }
 }

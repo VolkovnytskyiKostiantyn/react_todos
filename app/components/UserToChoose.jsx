@@ -1,15 +1,17 @@
 // @flow
-import React from 'react'
+import React, { PureComponent } from 'react'
 
-type Props = {
+type UserToChoosePropsType = {
     user: string,
     currentUser: string,
     setChoosenUser: () => void
 }
 
-export default function UserToChoose(props: Props) {
-  const { user, currentUser, setChoosenUser } = props
-  return (
-    <div className="user-to-choose" onClick={() => setChoosenUser(user)}>{user === currentUser ? 'Yours' : user}</div>
-  )
+export default class UserToChoose extends PureComponent<UserToChoosePropsType, State> {
+  render() {
+    const { user } = this.props
+    return (
+      <div className="user-to-choose" onClick={() => setChoosenUser(user)}>{this.user === this.currentUser ? 'Yours' : this.user}</div>
+    )
+  }
 }

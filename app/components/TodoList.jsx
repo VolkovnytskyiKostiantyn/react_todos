@@ -38,39 +38,42 @@ type Props = {
   handleClicks: (id: string, todoTitle: string) => void,
 }
 
-export default function TodoList(props: Props) {
-  const {
-    todos,
-    currentUpdatingTodo,
-    todosToRender,
-    currentUser,
-    choosenUser,
-    currentViewMode,
-    addTodo,
-    todosInputValue,
-    updateInputFieldValue,
-    setViewModeAll,
-    setViewModeActive,
-    setViewModeCompleted,
-    toggleReadyState,
-    removeTodo,
-    clearCompleted,
-    cancelUpdatingTodo,
-    beginUpdatingTodo,
-    confirmUpdatingTodo,
-    updateTodoInputFieldValue,
-    updatingTodoInputValue,
-    timeoutId,
-    handleClicks,
-  } = props
-  console.log('choosenUser', choosenUser)
-  console.log('currentUser', currentUser)
-  return (
-    <section className="main-container">
-      <input className={[currentUser, 'All'].includes(choosenUser) ? 'todo-input' : 'todo-input hidden'} type="text" onKeyDown={addTodo} onChange={updateInputFieldValue} value={todosInputValue} />
-      <div className="todos-container">
-        <ul className="todo-list">
-          {
+export default class TodoList extends React.Component {
+  construtor(props: Props) {
+    super(props)
+    todos = this.props.todos
+    currentUpdatingTodo = this.props.currentUpdatingTodo
+    todosToRender = this.props.todosToRender
+    currentUser = this.props.currentUser
+    choosenUser = this.props.choosenUser
+    currentViewMode = this.props.currentViewMode
+    addTodo = this.props.addTodo
+    todosInputValue = this.props.todosInputValue
+    updateInputFieldValue = this.props.updateInputFieldValue
+    setViewModeAll = this.props.setViewModeAll
+    setViewModeActive = this.props.setViewModeActive
+    setViewModeCompleted = this.props.setViewModeCompleted
+    toggleReadyState = this.props.toggleReadyState
+    removeTodo = this.props.removeTodo
+    clearCompleted = this.props.clearCompleted
+    cancelUpdatingTodo = this.props.cancelUpdatingTodo
+    beginUpdatingTodo = this.props.beginUpdatingTodo
+    confirmUpdatingTodo = this.props.confirmUpdatingTodo
+    updateTodoInputFieldValue = this.props.updateTodoInputFieldValue
+    updatingTodoInputValue = this.props.updatingTodoInputValue
+    timeoutId = this.props.timeoutId
+    handleClicks = this.props.handleClicks
+  }
+
+
+  render() {
+    return (
+
+      <section className="main-container">
+        <input className={[currentUser, 'All'].includes(choosenUser) ? 'todo-input' : 'todo-input hidden'} type="text" onKeyDown={addTodo} onChange={updateInputFieldValue} value={todosInputValue} />
+        <div className="todos-container">
+          <ul className="todo-list">
+            {
           todosToRender.map((todo) => (
             <TodoItem
               todo={todo}
@@ -90,36 +93,17 @@ export default function TodoList(props: Props) {
             />
           ))
           }
-        </ul>
-      </div>
-      <BottomPanel
-        setViewModeAll={setViewModeAll}
-        setViewModeActive={setViewModeActive}
-        setViewModeCompleted={setViewModeCompleted}
-        clearCompleted={clearCompleted}
-        currentViewMode={currentViewMode}
-        quantity={todos.filter((todo) => !todo.isCompleted).length}
-      />
-    </section>
-  )
+          </ul>
+        </div>
+        <BottomPanel
+          setViewModeAll={setViewModeAll}
+          setViewModeActive={setViewModeActive}
+          setViewModeCompleted={setViewModeCompleted}
+          clearCompleted={clearCompleted}
+          currentViewMode={currentViewMode}
+          quantity={todos.filter((todo) => !todo.isCompleted).length}
+        />
+      </section>
+    )
+  }
 }
-
-// TodoList.defaultProps = {
-//   todosToRender: [],
-//   currentUser: '',
-//   todosInputValue: '',
-// }
-
-// TodoList.propTypes = {
-//   todosToRender: PropTypes.arrayOf(PropTypes.object),
-//   currentUser: PropTypes.string,
-//   addTodo: PropTypes.func.isRequired,
-//   todosInputValue: PropTypes.string,
-//   updateInputFieldValue: PropTypes.func.isRequired,
-//   setViewModeAll: PropTypes.func.isRequired,
-//   setViewModeActive: PropTypes.func.isRequired,
-//   setViewModeCompleted: PropTypes.func.isRequired,
-//   toggleReadyState: PropTypes.func.isRequired,
-//   removeTodo: PropTypes.func.isRequired,
-//   clearCompleted: PropTypes.func.isRequired,
-// }

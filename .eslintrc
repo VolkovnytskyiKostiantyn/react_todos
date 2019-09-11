@@ -29,6 +29,9 @@
         ],
         "no-console": [
             "error"
+        ],
+        "constructor-super": [
+            2
         ]
     },
     "parser": "babel-eslint"

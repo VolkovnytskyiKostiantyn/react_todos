@@ -46,100 +46,12 @@ type Props = {
   handleClicks: (id: string, todoTitle: string) => void,
 }
 
-export default function TodosPage(props: Props) {
-  const {
-    addTodo,
-    currentUpdatingTodo,
-    updateInputFieldValue,
-    setViewModeAll,
-    setViewModeActive,
-    setViewModeCompleted,
-    toggleReadyState,
-    removeTodo,
-    clearCompleted,
-    todosInputValue,
-    nextId,
-    todos,
-    todosToRender,
-    currentUser,
-    choosenUser,
-    currentViewMode,
-    sharedUsers,
-    sharedUsersInputValue,
-    updateSharedUsersFieldValue,
-    addSharedUser,
-    logout,
-    cancelUpdatingTodo,
-    beginUpdatingTodo,
-    confirmUpdatingTodo,
-    updateTodoInputFieldValue,
-    updatingTodoInputValue,
-    timeoutId,
-    handleClicks,
-    returnToTodosSelection
-  } = props
+export default function TodosPage() {
   return (
     <>
-      <LogoutPanel currentUser={currentUser} logout={logout} returnToTodosSelection={returnToTodosSelection} />
-      <TodoList
-        addTodo={addTodo}
-        currentUpdatingTodo={currentUpdatingTodo}
-        updateInputFieldValue={updateInputFieldValue}
-        setViewModeAll={setViewModeAll}
-        setViewModeActive={setViewModeActive}
-        setViewModeCompleted={setViewModeCompleted}
-        toggleReadyState={toggleReadyState}
-        removeTodo={removeTodo}
-        clearCompleted={clearCompleted}
-        todosInputValue={todosInputValue}
-        nextId={nextId}
-        todos={todos}
-        todosToRender={todosToRender}
-        currentUser={currentUser}
-        choosenUser={choosenUser}
-        currentViewMode={currentViewMode}
-        cancelUpdatingTodo={cancelUpdatingTodo}
-        beginUpdatingTodo={beginUpdatingTodo}
-        confirmUpdatingTodo={confirmUpdatingTodo}
-        updateTodoInputFieldValue={updateTodoInputFieldValue}
-        updatingTodoInputValue={updatingTodoInputValue}
-        timeoutId={timeoutId}
-        handleClicks={handleClicks}
-      />
-      <SharedUsersPanel
-        sharedUsers={sharedUsers}
-        sharedUsersInputValue={sharedUsersInputValue}
-        updateSharedUsersFieldValue={updateSharedUsersFieldValue}
-        addSharedUser={addSharedUser}
-      />
+      <LogoutPanel />
+      <TodoList />
+      <SharedUsersPanel />
     </>
   )
 }
-
-// TodosPage.defaultProps = {
-//   currentUser: '',
-//   todos: [],
-//   todosInputValue: '',
-//   sharedUsers: [],
-//   sharedUsersInputValue: '',
-// }
-
-// TodosPage.propTypes = {
-//   currentUser: PropTypes.string,
-//   logout: PropTypes.func.isRequired,
-//   todos: PropTypes.arrayOf(PropTypes.object),
-//   addTodo: PropTypes.func.isRequired,
-//   todosInputValue: PropTypes.string,
-//   updateInputFieldValue: PropTypes.func.isRequired,
-//   setViewModeAll: PropTypes.func.isRequired,
-//   setViewModeActive: PropTypes.func.isRequired,
-//   setViewModeCompleted: PropTypes.func.isRequired,
-//   toggleReadyState: PropTypes.func.isRequired,
-//   removeTodo: PropTypes.func.isRequired,
-//   clearCompleted: PropTypes.func.isRequired,
-//   sharedUsers: PropTypes.arrayOf(PropTypes.string),
-//   addSharedUser: PropTypes.func.isRequired,
-//   updateSharedUsersFieldValue: PropTypes.func.isRequired,
-//   sharedUsersInputValue: PropTypes.string,
-//   nextId: PropTypes.number.isRequired,
-// }

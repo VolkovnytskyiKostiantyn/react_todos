@@ -9,28 +9,29 @@ type Props = {
     updateSharedUsersFieldValue: (event: SyntheticKeyboardEvent<HTMLInputElement>) => void,
 }
 
-export default function SharedUsersPanel(props: Props) {
-  const {
-    sharedUsers,
-    addSharedUser,
-    sharedUsersInputValue,
-    updateSharedUsersFieldValue,
-  } = props
-  return (
-    <div className="share-list-container">
-      <input
-        type="text"
-        className="add-shared-user-input"
-        onKeyPress={addSharedUser}
-        placeholder="Add shared user"
-        value={sharedUsersInputValue}
-        onChange={updateSharedUsersFieldValue}
-      />
-      <ul className="share-list">
-        {sharedUsers.map((user) => <SharedUser user={user} key={user} />)}
-      </ul>
-    </div>
-  )
+export default class SharedUsersPanel {
+  constructor(props) {
+    this.sharedUsers = props.sharedUsers
+    this.sharedUsersInputValue = props.sharedUsersInputValue
+  }
+
+  render() {
+    return (
+      <div className="share-list-container">
+        <input
+          type="text"
+          className="add-shared-user-input"
+          onKeyPress={this.props.addSharedUser}
+          placeholder="Add shared user"
+          value={this.propssharedUsersInputValue}
+          onChange={this.props.updateSharedUsersFieldValue}
+        />
+        <ul className="share-list">
+          {this.sharedUsers.map((user) => <SharedUser user={user} key={user} />)}
+        </ul>
+      </div>
+    )
+  }
 }
 
 // SharedUsersPanel.defaultProps = {
