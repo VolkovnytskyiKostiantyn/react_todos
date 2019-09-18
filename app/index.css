@@ -120,6 +120,11 @@ body {
   margin-top: 10px;
 }
 
+.sign-up-link {
+  display: inline-block;
+  font-size: 14px;
+}
+
 .share-list-container {
   width: 150px;
   border: 1px solid gray;
@@ -202,4 +207,9 @@ button {
   position: absolute;
   right: 0;
   top: 0;
+}
+
+.modal-window{
+  width: 200px;
+  height: 100px;
 }

@@ -1,23 +1,9 @@
-/* eslint-disable no-console */
 // @flow
-/* eslint-disable react/state-in-constructor */
 import * as React from 'react'
-import ReactDOM from 'react-dom'
-import { Router, Route, Switch } from 'react-router-dom'
-import { configure } from 'mobx'
-import { observer } from 'mobx-react'
-import { Provider } from './components/typedInject'
-import './index.css'
+import { inject as untypedInject, Provider as UntypedProvider } from 'mobx-react'
 
-import Store from './Store'
-import InjectedPrivateRoute from './components/PrivateRoute'
-import InjectedLoginPanel from './components/LoginPanel'
-import InjectedSignUpPanel from './components/SignUpPanel'
-import InjectedModalWindow from './components/Modal'
 
-configure({ enforceActions: 'observed' })
-
-type Props = {
+type Store = $ReadOnly<{
   store: {
     todos: Array<{
       title: string,
@@ -70,53 +56,25 @@ type Props = {
     updateSharedUsersFieldValue: (event: SyntheticKeyboardEvent<HTMLInputElement>) => void,
     addSharedUser: (event: SyntheticKeyboardEvent<HTMLInputElement>) => void,
   },
+}>;
+
+type MakeMixed = <-V>(V) => mixed;
+
+export function inject<
+    TProps: {},
+    TWrappedComponentType: React.ComponentType<TProps>,
+    TInjectedProps: $Shape<
+      & {...TProps}
+      & TProps>,
+  >(propsSelector: (Store) => TInjectedProps): (TWrappedComponentType) =>
+  React.ComponentType<
+    $Diff<
+      $Exact<
+        React.ElementConfig<TWrappedComponentType>>,
+      $ObjMap<
+        $Exact<TInjectedProps>,
+        MakeMixed>>> {
+  return (wrappedComponentType) => untypedInject(propsSelector)(wrappedComponentType)
 }
 
-@observer
-class App extends React.Component<Props> {
-  // constructor(props) {
-  //   super(props)
-  //   this.store = props.store
-  // }
-
-  componentDidMount(): void {
-    const { store: { fetchUsersData } } = this.props
-    const login = localStorage.getItem('login')
-    if (typeof login !== 'string') return
-    fetchUsersData(login)
-  }
-
-
-  render(): React.Element<any> {
-    const { store } = this.props
-    return (
-      <Provider store={store}>
-        <Router history={store.history}>
-          <InjectedModalWindow />
-          <Switch>
-            <Route
-              exact
-              path="/login"
-              render={() => (
-                <InjectedLoginPanel />
-              )}
-            />
-            <Route
-              exact
-              path="/signUp"
-              render={() => <InjectedSignUpPanel />}
-            />
-            <InjectedPrivateRoute />
-          </Switch>
-        </Router>
-      </Provider>
-    )
-  }
-}
-
-const appStore = new Store()
-
-ReactDOM.render(
-  <App store={appStore} />, // $FlowIgnore
-  document.getElementById('app'),
-)
+export const Provider: React.ComponentType<Store> = UntypedProvider

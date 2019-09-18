@@ -6,9 +6,9 @@ import { inject } from './typedInject'
 
 type Props = {
   store: {
-    login: (
-      event: | SyntheticKeyboardEvent<HTMLInputElement>
-        | SyntheticMouseEvent<HTMLButtonElement>
+    signUp: (
+      event: SyntheticKeyboardEvent<HTMLInputElement>
+        | SyntheticMouseEvent<HTMLButtonElement>,
     ) => void,
     loginFieldValue: string,
     passwordFieldValue: string,
@@ -19,15 +19,15 @@ type Props = {
       event: SyntheticKeyboardEvent<HTMLInputElement>
     ) => void
   },
-};
+}
 
-// @inject('store')
+
 @observer
-class LoginPanel extends React.Component<Props> {
+class SignUpPanel extends React.Component<Props> {
   render() {
     const {
       store: {
-        login, loginFieldValue, passwordFieldValue, updateLoginFieldValue, updatePasswordFieldValue,
+        signUp, loginFieldValue, passwordFieldValue, updateLoginFieldValue, updatePasswordFieldValue,
       },
     } = this.props
     return (
@@ -41,7 +41,7 @@ class LoginPanel extends React.Component<Props> {
               type="text"
               value={loginFieldValue}
               onChange={updateLoginFieldValue}
-              onKeyDown={login}
+              onKeyDown={signUp}
             />
           </label>
           <label htmlFor="password-field">
@@ -52,20 +52,20 @@ class LoginPanel extends React.Component<Props> {
               type="password"
               value={passwordFieldValue}
               onChange={updatePasswordFieldValue}
-              onKeyDown={login}
+              onKeyDown={signUp}
             />
           </label>
         </div>
-        <button type="button" className="login-button" onClick={login}>
-        Login
+        <button type="button" className="login-button" onClick={signUp}>
+        Sign Up
         </button>
-        <Link className="sign-up-link" to="/signUp">Sign Up</Link>
+        <Link className="sign-up-link" to="/login">Log In</Link>
       </section>
     )
   }
 }
 
-const InjectedLoginPanel = inject(({ store }) => ({ store }))(LoginPanel)
+const InjectedSignUpPanel = inject(({ store }) => ({ store }))(SignUpPanel)
 
 
-export default InjectedLoginPanel
+export default InjectedSignUpPanel
